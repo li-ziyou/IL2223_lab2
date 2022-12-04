@@ -29,23 +29,32 @@ def g():
     notebook_login()
 
     # Create and load dataset
-    common_voice = DatasetDict()
 
-    common_voice["train"] = load_dataset("mozilla-foundation/common_voice_11_0", "zh-HK", split="train+validation", use_auth_token=True)
-    common_voice["test"] = load_dataset("mozilla-foundation/common_voice_11_0", "zh-HK", split="test", use_auth_token=True)
-    
+    trainset = load_dataset("mozilla-foundation/common_voice_11_0", "zh-HK", split="train+validation", use_auth_token=True).to_pandas()
+    testset = load_dataset("mozilla-foundation/common_voice_11_0", "zh-HK", split="test", use_auth_token=True).to_pandas()
+
     # Remove additional metadata information
-    common_voice = common_voice.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "path", "segment", "up_votes"])
+    trainset = trainset.drop(['client_id', 'path', 'up_votes', 'down_votes', 'age', 'gender', 'accent', 'locale', 'segment'], axis=1)
+    testset = testset.drop(['client_id', 'path', 'up_votes', 'down_votes', 'age', 'gender', 'accent', 'locale', 'segment'], axis=1)
 
-    whisper_fg = fs.get_or_create_feature_group(
-        name="whisper_feature_zh_hk",
+    whisper_train = fs.get_or_create_feature_group(
+        name="whisper_feature_zh_hk_train",
         version=1,
-        primary_key="audio", 
-        description="Cantonese audio and sentences for training whisper model"
+        primary_key=["audio"],
+        online_enabled = True,
+        description="Cantonese audio and sentences for training the whisper model"
     )
 
-    whisper_fg.insert(common_voice["train"].to_pandas(), write_options={"wait_for_job" : False})
-    whisper_fg.insert(common_voice["test"] .to_pandas(), write_options={"wait_for_job" : False})
+    whisper_test = fs.get_or_create_feature_group(
+        name="whisper_feature_zh_hk_test",
+        version=1,
+        primary_key=["audio"],
+        online_enabled = True,
+        description="Cantonese audio and sentences for testing the whisper model"
+    )
+
+    whisper_train.insert(trainset, write_options={"wait_for_job" : True})
+    whisper_test.insert(testset, write_options={"wait_for_job" : True})
 
 if __name__ == "__main__":
     if LOCAL == True :

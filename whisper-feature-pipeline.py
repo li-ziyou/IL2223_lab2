@@ -1,6 +1,5 @@
 import os
 import modal
-import numpy as np
 
 
 LOCAL=True
@@ -16,7 +15,9 @@ if LOCAL == False:
 
 def g():
     import hopsworks
+    import numpy as np
     import pandas as pd
+    import librosa
     from datasets import load_dataset, DatasetDict
     from huggingface_hub import login, notebook_login
 
@@ -35,13 +36,17 @@ def g():
     
     # Remove additional metadata information
     common_voice = common_voice.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "path", "segment", "up_votes"])
+    print(common_voice)
 
     whisper_fg = fs.get_or_create_feature_group(
-        name="whisper_feature_zh-HK",
+        name="whisper_feature_zh_hk",
         version=1,
-        primary_key=['audio'], 
-        description="Cantonese audio and sentences for training whisper model")
-    whisper_fg.insert(common_voice, write_options={"wait_for_job" : False})
+        primary_key=["audio"], 
+        description="Cantonese audio and sentences for training whisper model"
+    )
+
+    whisper_fg.insert(common_voice["train"].to_pandas(), write_options={"wait_for_job" : False})
+    whisper_fg.insert(common_voice["test"] .to_pandas(), write_options={"wait_for_job" : False})
 
 if __name__ == "__main__":
     if LOCAL == True :

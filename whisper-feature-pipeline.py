@@ -36,12 +36,11 @@ def g():
     
     # Remove additional metadata information
     common_voice = common_voice.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "path", "segment", "up_votes"])
-    print(common_voice)
 
     whisper_fg = fs.get_or_create_feature_group(
         name="whisper_feature_zh_hk",
         version=1,
-        primary_key=["audio"], 
+        primary_key="audio", 
         description="Cantonese audio and sentences for training whisper model"
     )
 

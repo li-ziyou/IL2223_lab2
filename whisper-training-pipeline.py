@@ -49,11 +49,12 @@ def g():
                                               labels=["labels"], #sentence (string)
                                               query=query)
     print(feature_view)
+    cantonese_voice_train, cantonese_voice_test = feature_view.get_training_data(training_dataset_version=1) #[?]unfinished
     # You can read training data, randomly split into train/test sets of features (X) and labels (y)
-    X_train, X_test, y_train, y_test = feature_view.train_test_split(0.2)
+    #X_train, y_train, X_test, y_test = feature_view.get_train_test_split(training_dataset_version=1)
 
     from transformers import WhisperProcessor
-    processor = WhisperProcessor.from_pretrained("openai/whisper-small", language="zh-hk", task="transcribe")
+    processor = WhisperProcessor.from_pretrained("openai/whisper-small", language="zh-HK", task="transcribe")
 
     import torch
     from dataclasses import dataclass
@@ -89,7 +90,7 @@ def g():
 
     #Elvaluation matrics
     import evaluate
-    tokenizer = WhisperTokenizer.from_pretrained("openai/whisper-small", language="Hindi", task="transcribe")
+    tokenizer = WhisperTokenizer.from_pretrained("openai/whisper-small", language="zh-HK", task="transcribe")
     metric = evaluate.load("wer")
     def compute_metrics(pred):
         pred_ids = pred.predictions
@@ -140,8 +141,8 @@ def g():
     trainer = Seq2SeqTrainer(
         args=training_args,
         model=model,
-        train_dataset=cantonese_voice["train"],
-        eval_dataset=cantonese_voice["test"],
+        train_dataset=cantonese_voice_train, #["train"],
+        eval_dataset=cantonese_voice_test,   #["test"],
         data_collator=data_collator,
         compute_metrics=compute_metrics,
         tokenizer=processor.feature_extractor,

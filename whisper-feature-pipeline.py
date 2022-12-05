@@ -7,7 +7,7 @@ if LOCAL == False:
 
    stub = modal.Stub()
    image = modal.Image.debian_slim().pip_install(["hopsworks==3.0.4","datasets", "huggingface_hub", "joblib","seaborn","scikit-learn==0.24.2","dataframe-image","librosa","transformers", "torchaudio<0.12"]).apt_install(["libsndfile1"])
-   @stub.function(image=image, schedule=modal.Period(days=1), secret=modal.Secret.from_name("ScalableML_lab1"), timeout=500)
+   @stub.function(image=image, schedule=modal.Period(days=1), secret=modal.Secret.from_name("ScalableML_lab1"), timeout=5000)
    def f():
        g()
 
@@ -93,13 +93,15 @@ def g():
         description="Cantonese audio and sentences for training the whisper model"
     )
 
-    cantonese_pandas = cantonese_dropped.to_pandas(batched=True, batch_size=1000)
+    # cantonese_pandas = cantonese_dropped.to_pandas(batched=True, batch_size=1000)
   
-    for frame in cantonese_pandas: # cantonese_pandas is a generator
-      print(frame['input_features'].dtypes)
-      print(frame['labels'].dtypes)
-      whisper_train.insert(frame, write_options={"wait_for_job" : True})
+    # for frame in cantonese_pandas: # cantonese_pandas is a generator
+    #   print(frame['input_features'].dtypes)
+    #   print(frame['labels'].dtypes)
+    #   whisper_train.insert(frame, write_options={"wait_for_job" : True})
 
+    cantonese_pandas = cantonese_dropped.to_pandas()
+    whisper_train.insert(cantonese_pandas, write_options={"wait_for_job" : True})
 
 if __name__ == "__main__":
     if LOCAL == True :

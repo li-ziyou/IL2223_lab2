@@ -1,13 +1,13 @@
 import os
 import modal
 
-LOCAL=True
+LOCAL=False
 
 if LOCAL == False:
 
    stub = modal.Stub()
-   image = modal.Image.debian_slim().pip_install(["hopsworks==3.0.4","datasets", "huggingface_hub", "joblib","seaborn","scikit-learn==0.24.2","dataframe-image","librosa","datasets"]).apt_install(["libsndfile1"])
-   @stub.function(image=image, schedule=modal.Period(days=1), secret=modal.Secret.from_name("ScalableML_lab1"))
+   image = modal.Image.debian_slim().pip_install(["hopsworks==3.0.4","datasets", "huggingface_hub", "joblib","seaborn","scikit-learn==0.24.2","dataframe-image","librosa","transformers", "torchaudio<0.12"]).apt_install(["libsndfile1"])
+   @stub.function(image=image, schedule=modal.Period(days=1), secret=modal.Secret.from_name("ScalableML_lab1"), timeout=500)
    def f():
        g()
 
@@ -81,16 +81,25 @@ def g():
 
     print(cantonese)
 
+    cantonese_dropped = cantonese.remove_columns(["audio", "sentence"])
+
+    print(cantonese_dropped)
 
     whisper_train = fs.get_or_create_feature_group(
         name="whisper_feature_zh_hk",
         version=1,
-        primary_key=["audio"],
+        primary_key=["input_features"],
         online_enabled = True,
         description="Cantonese audio and sentences for training the whisper model"
     )
 
-    whisper_train.insert(cantonese.to_pandas(), write_options={"wait_for_job" : True})
+    cantonese_pandas = cantonese_dropped.to_pandas(batched=True, batch_size=1000)
+  
+    for frame in cantonese_pandas: # cantonese_pandas is a generator
+      print(frame['input_features'].dtypes)
+      print(frame['labels'].dtypes)
+      whisper_train.insert(frame, write_options={"wait_for_job" : True})
+
 
 if __name__ == "__main__":
     if LOCAL == True :

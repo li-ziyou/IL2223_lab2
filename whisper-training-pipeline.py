@@ -163,7 +163,7 @@ def g():
 
 
 
-
+"""
     # We will now upload our model to the Hopsworks Model Registry. First get an object for the model registry.
     mr = project.get_model_registry()
 
@@ -173,8 +173,8 @@ def g():
         os.mkdir(model_dir)
 
     # Save both our model and the confusion matrix to 'model_dir', whose contents will be uploaded to the model registry
-    joblib.dump(model, model_dir + "/titanic_modal.pkl")
-    fig.savefig(model_dir + "/confusion_matrix.png")
+    joblib.dump(model, model_dir + "/whisper_modal.pkl")
+    #fig.savefig(model_dir + "/confusion_matrix.png")
 
     # Specify the schema of the model's input/output using the features (X_train) and labels (y_train)
     input_schema = Schema(X_train)
@@ -182,16 +182,16 @@ def g():
     model_schema = ModelSchema(input_schema, output_schema)
 
     # Create an entry in the model registry that includes the model's name, desc, metrics
-    titanic_model = mr.python.create_model(
-        name="titanic_modal",
-        metrics={"accuracy": metrics['accuracy']},
+    whisper_model = mr.python.create_model(
+        name="whisper_modal",
+        metrics={"wer": metric['accuracy']},
         model_schema=model_schema,
-        description="Titanic Predictor"
+        description="whisper Predictor"
     )
 
     # Upload the model to the model registry, including all files in 'model_dir'
-    titanic_model.save(model_dir)
-
+    whisper_model.save(model_dir)
+"""
 
 if __name__ == "__main__":
     if LOCAL == True :

@@ -48,51 +48,127 @@ def g():
                                               description="Read from voice dataset",
                                               labels=["sentence"], #sentence (string)
                                               query=query)
-    print(feature_view)
     # You can read training data, randomly split into train/test sets of features (X) and labels (y)
     X_train, y_train = feature_view.get_training_data(1) #(training_dataset_version=1) #.train_test_split(0.2)
 
-    try:
-        feature_view = fs.get_feature_view(name="whisper_feature_zh_hk_test", version=1)
-    except:
-        whisper_fg = fs.get_feature_group(name="whisper_feature_zh_hk_test", version=1)
-        query = whisper_fg.select_all()
-        feature_view = fs.create_feature_view(name="whisper_feature_zh_hk_test",
-                                              version=1,
-                                              description="Read from voice dataset",
-                                              labels=["sentence"], #sentence (string)
-                                              query=query)
+    from transformers import WhisperProcessor
+    processor = WhisperProcessor.from_pretrained("openai/whisper-small", language="Hindi", task="transcribe")
 
-    X_test, y_test = feature_view.get_training_data(1)#(training_dataset_version=1) #.train_test_split(0.2)
+    import torch
+    from dataclasses import dataclass
+    from typing import Any, Dict, List, Union
 
-    feature_extractor = WhisperFeatureExtractor.from_pretrained("openai/whisper-small")
-    tokenizer = WhisperTokenizer.from_pretrained("openai/whisper-small", language="Chinese", task="transcribe")
-    processor = WhisperProcessor.from_pretrained("openai/whisper-small", language="Chinese", task="transcribe")
-    common_voice = common_voice.cast_column("audio", Audio(sampling_rate=16000))
+    #Define a Data collator
+    class DataCollatorSpeechSeq2SeqWithPadding:
+        processor: Any
 
-    # Train our model with the Scikit-learn K-nearest-neighbors algorithm using our features (X_train) and labels (y_train)
-    # XGBoost for titanic
-    model = KNeighborsClassifier(n_neighbors=2)
-    model.fit(X_train, y_train.values.ravel())
+        def __call__(self, features: List[Dict[str, Union[List[int], torch.Tensor]]]) -> Dict[str, torch.Tensor]:
+            # split inputs and labels since they have to be of different lengths and need different padding methods
+            # first treat the audio inputs by simply returning torch tensors
+            input_features = [{"input_features": feature["input_features"]} for feature in features]
+            batch = self.processor.feature_extractor.pad(input_features, return_tensors="pt")
 
-    # Evaluate model performance using the features from the test set (X_test)
-    y_pred = model.predict(X_test)
+            # get the tokenized label sequences
+            label_features = [{"input_ids": feature["labels"]} for feature in features]
+            # pad the labels to max length
+            labels_batch = self.processor.tokenizer.pad(label_features, return_tensors="pt")
 
-    # Compare predictions (y_pred) with the labels in the test set (y_test)
-    metrics = classification_report(y_test, y_pred, output_dict=True)
-    results = confusion_matrix(y_test, y_pred)
+            # replace padding with -100 to ignore loss correctly
+            labels = labels_batch["input_ids"].masked_fill(labels_batch.attention_mask.ne(1), -100)
 
-    # Create the confusion matrix as a figure, we will later store it as a PNG image file
-    df_cm = pd.DataFrame(results, ['True survived', 'True dead'],
-                         ['Pred survived', 'Pred dead'])
-    cm = sns.heatmap(df_cm, annot=True)
-    fig = cm.get_figure()
+            # if bos token is appended in previous tokenization step,
+            # cut bos token here as it's append later anyways
+            if (labels[:, 0] == self.processor.tokenizer.bos_token_id).all().cpu().item():
+                labels = labels[:, 1:]
+
+            batch["labels"] = labels
+
+            return batch
+    data_collator = DataCollatorSpeechSeq2SeqWithPadding(processor=processor)
+
+    #Elvaluation matrics
+    import evaluate
+    tokenizer = WhisperTokenizer.from_pretrained("openai/whisper-small", language="Hindi", task="transcribe")
+    metric = evaluate.load("wer")
+    def compute_metrics(pred):
+        pred_ids = pred.predictions
+        label_ids = pred.label_ids
+
+        # replace -100 with the pad_token_id
+        label_ids[label_ids == -100] = tokenizer.pad_token_id
+
+        # we do not want to group tokens when computing the metrics
+        pred_str = tokenizer.batch_decode(pred_ids, skip_special_tokens=True)
+        label_str = tokenizer.batch_decode(label_ids, skip_special_tokens=True)
+
+        wer = 100 * metric.compute(predictions=pred_str, references=label_str)
+
+        return {"wer": wer}
+    #Load a pre-trained checkpoint
+    from transformers import WhisperForConditionalGeneration
+    model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small")
+    model.config.forced_decoder_ids = None
+    model.config.suppress_tokens = []
+
+    #Define the training configuration
+    from transformers import Seq2SeqTrainingArguments
+    training_args = Seq2SeqTrainingArguments(
+        output_dir="./whisper-small-zh-HK",  # change to a repo name of your choice
+        per_device_train_batch_size=16,
+        gradient_accumulation_steps=1,  # increase by 2x for every 2x decrease in batch size
+        learning_rate=1e-5,
+        warmup_steps=500,
+        max_steps=4000,
+        gradient_checkpointing=True,
+        fp16=True,
+        evaluation_strategy="steps",
+        per_device_eval_batch_size=8,
+        predict_with_generate=True,
+        generation_max_length=225,
+        save_steps=1000,
+        eval_steps=1000,
+        logging_steps=25,
+        report_to=["tensorboard"],
+        load_best_model_at_end=True,
+        metric_for_best_model="wer",
+        greater_is_better=False,
+        push_to_hub=True,
+    )
+    #Forward the training arguments to huggingface
+    from transformers import Seq2SeqTrainer
+    trainer = Seq2SeqTrainer(
+        args=training_args,
+        model=model,
+        train_dataset=common_voice["train"],
+        eval_dataset=common_voice["test"],
+        data_collator=data_collator,
+        compute_metrics=compute_metrics,
+        tokenizer=processor.feature_extractor,
+    )
+    processor.save_pretrained(training_args.output_dir)
+
+    #Training start
+    trainer.train()
+    kwargs = {
+        "dataset_tags": "mozilla-foundation/common_voice_11_0",
+        "dataset": "Common Voice 11.0",  # a 'pretty' name for the training dataset
+        "dataset_args": "config: zh-HK, split: test",
+        "language": "zh-HK",
+        "model_name": "Whisper Small zh-HK - Ziyou Li",  # a 'pretty' name for our model
+        "finetuned_from": "openai/whisper-small",
+        "tasks": "automatic-speech-recognition",
+        "tags": "hf-asr-leaderboard",
+    }
+    trainer.push_to_hub(**kwargs)
+
+
+
 
     # We will now upload our model to the Hopsworks Model Registry. First get an object for the model registry.
     mr = project.get_model_registry()
 
     # The contents of the 'titanic_model' directory will be saved to the model registry. Create the dir, first.
-    model_dir = "titanic_modal"
+    model_dir = "whisper_modal"
     if os.path.isdir(model_dir) == False:
         os.mkdir(model_dir)
 

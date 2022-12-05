@@ -8,7 +8,6 @@ if LOCAL == False:
 
    stub = modal.Stub()
    image = modal.Image.debian_slim().pip_install(["hopsworks==3.0.4","datasets", "huggingface_hub", "joblib","seaborn","scikit-learn==0.24.2","dataframe-image","librosa","datasets"]).apt_install(["libsndfile1"])
-   #image2 = modal.Image.debian_slim().apt_install(["libsndfile1"])
    @stub.function(image=image, schedule=modal.Period(days=1), secret=modal.Secret.from_name("ScalableML_lab1"))
    def f():
        g()
@@ -21,7 +20,7 @@ def g():
     from datasets import load_dataset, DatasetDict
     from huggingface_hub import login, notebook_login
 
-    project = hopsworks.login()
+    project = hopsworks.login(api_key_value="CDqcnm3gyfxjyCO8.TZwOClLOwCqDp33vX0P5Q2nsvNNyEhfBMArwNoPjnb9tUSSKq6I8X35HQ5D2tlJ7")
     fs = project.get_feature_store()
 
     # Login to huggingface

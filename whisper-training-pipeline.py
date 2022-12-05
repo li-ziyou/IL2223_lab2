@@ -24,22 +24,30 @@ def g():
     from hsml.schema import Schema
     from hsml.model_schema import ModelSchema
     import joblib
+    from transformers import WhisperFeatureExtractor
+    from transformers import WhisperTokenizer
+    from transformers import WhisperProcessor
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.model_selection import GridSearchCV, cross_val_score
 
+    feature_extractor = WhisperFeatureExtractor.from_pretrained("openai/whisper-small")
+    tokenizer = WhisperTokenizer.from_pretrained("openai/whisper-small", language="Chinese", task="transcribe")
+    processor = WhisperProcessor.from_pretrained("openai/whisper-small", language="Chinese", task="transcribe")
+
+
     # You have to set the environment variable 'HOPSWORKS_API_KEY' for login to succeed
-    project = hopsworks.login()
+    project = hopsworks.login(api_key_value="CDqcnm3gyfxjyCO8.TZwOClLOwCqDp33vX0P5Q2nsvNNyEhfBMArwNoPjnb9tUSSKq6I8X35HQ5D2tlJ7")
     # fs is a reference to the Hopsworks Feature Store
     fs = project.get_feature_store()
 
     # The feature view is the input set of features for your model. The features can come from different feature groups.
     # You can select features from different feature groups and join them together to create a feature view
     try:
-        feature_view = fs.get_feature_view(name="whisper_modal", version=1)
+        feature_view = fs.get_feature_view(name="whisper_feature_zh_hk_train", version=1)
     except:
         titanic_fg = fs.get_feature_group(name="whisper_modal", version=1)
         query = titanic_fg.select_all()
-        feature_view = fs.create_feature_view(name="whisper_modal",
+        feature_view = fs.create_feature_view(name="whisper_feature_zh_hk_train", # unfinished
                                               version=1,
                                               description="Read from voice dataset",
                                               labels=["sentence"], #sentence (string)

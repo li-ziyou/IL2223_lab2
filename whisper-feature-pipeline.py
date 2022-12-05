@@ -7,7 +7,7 @@ LOCAL=False
 if LOCAL == False:
 
    stub = modal.Stub()
-   image = modal.Image.debian_slim().pip_install(["hopsworks==3.0.4","datasets", "huggingface_hub", "joblib","seaborn","scikit-learn==0.24.2","dataframe-image","librosa"])
+   image = modal.Image.debian_slim().pip_install(["hopsworks==3.0.4","datasets", "huggingface_hub", "joblib","seaborn","scikit-learn==0.24.2","dataframe-image","librosa","datasets"])
 
    @stub.function(image=image, schedule=modal.Period(days=1), secret=modal.Secret.from_name("ScalableML_lab1"))
    def f():

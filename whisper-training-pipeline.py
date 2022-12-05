@@ -39,20 +39,21 @@ def g():
     # The feature view is the input set of features for your model. The features can come from different feature groups.
     # You can select features from different feature groups and join them together to create a feature view
     try:
-        feature_view = fs.get_feature_view(name="whisper_feature_zh_hk_train", version=1)
+        feature_view = fs.get_feature_view(name="whisper_feature_zh_hk", version=1)
     except:
-        whisper_fg = fs.get_feature_group(name="whisper_feature_zh_hk_train", version=1)
+        whisper_fg = fs.get_feature_group(name="whisper_feature_zh_hk", version=1)
         query = whisper_fg.select_all()
-        feature_view = fs.create_feature_view(name="whisper_feature_zh_hk_train",
+        feature_view = fs.create_feature_view(name="whisper_feature_zh_hk",
                                               version=1,
-                                              description="Read from voice dataset",
-                                              labels=["sentence"], #sentence (string)
+                                              description="Read from zh-hk voice dataset",
+                                              labels=["labels"], #sentence (string)
                                               query=query)
+    print(feature_view)
     # You can read training data, randomly split into train/test sets of features (X) and labels (y)
-    X_train, y_train = feature_view.get_training_data(1) #(training_dataset_version=1) #.train_test_split(0.2)
+    X_train, X_test, y_train, y_test = feature_view.train_test_split(0.2)
 
     from transformers import WhisperProcessor
-    processor = WhisperProcessor.from_pretrained("openai/whisper-small", language="Hindi", task="transcribe")
+    processor = WhisperProcessor.from_pretrained("openai/whisper-small", language="zh-hk", task="transcribe")
 
     import torch
     from dataclasses import dataclass
@@ -139,8 +140,8 @@ def g():
     trainer = Seq2SeqTrainer(
         args=training_args,
         model=model,
-        train_dataset=common_voice["train"],
-        eval_dataset=common_voice["test"],
+        train_dataset=cantonese_voice["train"],
+        eval_dataset=cantonese_voice["test"],
         data_collator=data_collator,
         compute_metrics=compute_metrics,
         tokenizer=processor.feature_extractor,

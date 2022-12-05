@@ -50,7 +50,7 @@ def g():
                                               query=query)
     print(feature_view)
     # You can read training data, randomly split into train/test sets of features (X) and labels (y)
-    X_train, y_train = feature_view.get_training_data() #.train_test_split(0.2)
+    X_train, y_train = feature_view.get_training_data(training_dataset_version=1) #.train_test_split(0.2)
 
     try:
         feature_view = fs.get_feature_view(name="whisper_feature_zh_hk_test", version=1)
@@ -63,7 +63,7 @@ def g():
                                               labels=["sentence"], #sentence (string)
                                               query=query)
 
-    y_train, y_test = feature_view.get_training_data() #.train_test_split(0.2)
+    y_train, y_test = feature_view.get_training_data(training_dataset_version=1) #.train_test_split(0.2)
 
     feature_extractor = WhisperFeatureExtractor.from_pretrained("openai/whisper-small")
     tokenizer = WhisperTokenizer.from_pretrained("openai/whisper-small", language="Chinese", task="transcribe")

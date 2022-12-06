@@ -75,7 +75,7 @@ def g():
 
     # Downsample to 16khz
     cantonese = cantonese.cast_column("audio", Audio(sampling_rate=16000))
-
+    print(cantonese)
     # Prepare data
     cantonese = cantonese.map(prepare_dataset, num_proc=4)
 
@@ -85,13 +85,13 @@ def g():
 
     print(cantonese_dropped)
 
-    whisper_train = fs.get_or_create_feature_group(
-        name="whisper_feature_zh_hk",
-        version=1,
-        primary_key=["input_features"],
-        online_enabled = True,
-        description="Cantonese audio and sentences for training the whisper model"
-    )
+    # whisper_train = fs.get_or_create_feature_group(
+    #     name="whisper_feature_zh_hk",
+    #     version=1,
+    #     primary_key=["input_features"],
+    #     online_enabled = True,
+    #     description="Cantonese audio and sentences for training the whisper model"
+    # )
 
     # cantonese_pandas = cantonese_dropped.to_pandas(batched=True, batch_size=1000) # cantonese_pandas is a generator
     # dataset_api = project.get_dataset_api()
@@ -103,11 +103,13 @@ def g():
     # for frame in cantonese_pandas: # cantonese_pandas is a generator
     #   whisper_train.insert(frame, write_options={"wait_for_job" : True})
 
-    cantonese_pandas = cantonese_dropped.to_pandas() # cantonese_pandas is a generator
-    dataset_api = project.get_dataset_api()
-    cantonese_pandas.to_csv('cantonese_pandas.csv')
-    uploaded_file_path = dataset_api.upload('cantonese_pandas.csv', "Resources")
-
+    # cantonese_pandas = cantonese_dropped.to_pandas() # cantonese_pandas is a generator
+    # dataset_api = project.get_dataset_api()
+    # cantonese_pandas.to_csv('cantonese_pandas.csv')
+    # uploaded_file_path = dataset_api.upload('cantonese_pandas.csv', "Resources")
+    
+    cantonese_dropped.push_to_hub("tilos/cantonese_processed")
+    
 if __name__ == "__main__":
     if LOCAL == True :
         g()

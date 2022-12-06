@@ -25,7 +25,7 @@ def g():
         audio = batch["audio"]
 
         # compute log-Mel input features from input audio array 
-        batch["input_features"] = feature_extractor(audio["array"], sampling_rate=audio["sampling_rate"]).input_features[0]
+        batch["input_features"] = feature_extractor(audio["array"], sampling_rate=audio["sampling_rate"], return_tensors='pt').input_features[0]
 
         # encode target text to label ids 
         batch["labels"] = tokenizer(batch["sentence"]).input_ids
@@ -93,15 +93,13 @@ def g():
         description="Cantonese audio and sentences for training the whisper model"
     )
 
-    # cantonese_pandas = cantonese_dropped.to_pandas(batched=True, batch_size=1000)
+    cantonese_pandas = cantonese_dropped.to_pandas(batched=True, batch_size=1000)
   
-    # for frame in cantonese_pandas: # cantonese_pandas is a generator
-    #   print(frame['input_features'].dtypes)
-    #   print(frame['labels'].dtypes)
-    #   whisper_train.insert(frame, write_options={"wait_for_job" : True})
+    for frame in cantonese_pandas: # cantonese_pandas is a generator
+      whisper_train.insert(frame, write_options={"wait_for_job" : True})
 
-    cantonese_pandas = cantonese_dropped.to_pandas()
-    whisper_train.insert(cantonese_pandas, write_options={"wait_for_job" : True})
+    # cantonese_pandas = cantonese_dropped.to_pandas()
+    # whisper_train.insert(cantonese_pandas, write_options={"wait_for_job" : True})
 
 if __name__ == "__main__":
     if LOCAL == True :

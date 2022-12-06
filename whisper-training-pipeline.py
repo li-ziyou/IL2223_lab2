@@ -31,25 +31,18 @@ def g():
     from sklearn.model_selection import GridSearchCV, cross_val_score
     from datasets import Audio
 
+
     # You have to set the environment variable 'HOPSWORKS_API_KEY' for login to succeed
     project = hopsworks.login(api_key_value="CDqcnm3gyfxjyCO8.TZwOClLOwCqDp33vX0P5Q2nsvNNyEhfBMArwNoPjnb9tUSSKq6I8X35HQ5D2tlJ7")
     # fs is a reference to the Hopsworks Feature Store
     fs = project.get_feature_store()
+    dataset_api = project.get_dataset_api()
+    downloaded_file_path = dataset_api.download(overwrite=True, path="Resources/cantonese_pandas_frame_1.csv")  #download to local
 
-    # The feature view is the input set of features for your model. The features can come from different feature groups.
-    # You can select features from different feature groups and join them together to create a feature view
-    try:
-        feature_view = fs.get_feature_view(name="whisper_feature_zh_hk", version=1)
-    except:
-        whisper_fg = fs.get_feature_group(name="whisper_feature_zh_hk", version=1)
-        query = whisper_fg.select_all()
-        feature_view = fs.create_feature_view(name="whisper_feature_zh_hk",
-                                              version=1,
-                                              description="Read from zh-hk voice dataset",
-                                              labels=["labels"], #sentence (string)
-                                              query=query)
-    print(feature_view)
-    cantonese_voice_train, cantonese_voice_test = feature_view.get_training_data(training_dataset_version=1) #[?]unfinished
+    from datasets import load_dataset
+    common_voice = load_dataset("csv",data_files="D:\Github\Deep Learning\IL2223_lab2\cantonese_pandas_frame_1.csv")  #[?]file path
+
+    cantonese_voice_train, cantonese_voice_test = common_voice, common_voice #[?] train and test
     # You can read training data, randomly split into train/test sets of features (X) and labels (y)
     #X_train, y_train, X_test, y_test = feature_view.get_train_test_split(training_dataset_version=1)
 
@@ -61,6 +54,7 @@ def g():
     from typing import Any, Dict, List, Union
 
     #Define a Data collator
+    @dataclass
     class DataCollatorSpeechSeq2SeqWithPadding:
         processor: Any
 

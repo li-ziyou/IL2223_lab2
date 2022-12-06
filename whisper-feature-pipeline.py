@@ -93,16 +93,20 @@ def g():
         description="Cantonese audio and sentences for training the whisper model"
     )
 
-    cantonese_pandas = cantonese_dropped.to_pandas(batched=True, batch_size=1000)
-    dataset_api = project.get_dataset_api()
-    for i, frame in enumerate(cantonese_pandas): # cantonese_pandas is a generator
-        frame.to_csv('cantonese_pandas_frame_'+str(i)+'.csv')
-        uploaded_file_path = dataset_api.upload('cantonese_pandas_frame_'+str(i)+'.csv', "Resources")
+    # cantonese_pandas = cantonese_dropped.to_pandas(batched=True, batch_size=1000) # cantonese_pandas is a generator
+    # dataset_api = project.get_dataset_api()
+    # for i, frame in enumerate(cantonese_pandas): # cantonese_pandas is a generator
+    #     frame.to_csv('cantonese_pandas_frame_'+str(i)+'.csv')
+    #     uploaded_file_path = dataset_api.upload('cantonese_pandas_frame_'+str(i)+'.csv', "Resources")
+        
+    # cantonese_pandas = cantonese_dropped.to_pandas(batched=True, batch_size=1000) # cantonese_pandas is a generator
     # for frame in cantonese_pandas: # cantonese_pandas is a generator
     #   whisper_train.insert(frame, write_options={"wait_for_job" : True})
 
-    # cantonese_pandas = cantonese_dropped.to_pandas()
-    # whisper_train.insert(cantonese_pandas, write_options={"wait_for_job" : True})
+    cantonese_pandas = cantonese_dropped.to_pandas() # cantonese_pandas is a generator
+    dataset_api = project.get_dataset_api()
+    cantonese_pandas.to_csv('cantonese_pandas.csv')
+    uploaded_file_path = dataset_api.upload('cantonese_pandas.csv', "Resources")
 
 if __name__ == "__main__":
     if LOCAL == True :

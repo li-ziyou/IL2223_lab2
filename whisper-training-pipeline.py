@@ -35,19 +35,18 @@ def g():
     # You have to set the environment variable 'HOPSWORKS_API_KEY' for login to succeed
     project = hopsworks.login(api_key_value="CDqcnm3gyfxjyCO8.TZwOClLOwCqDp33vX0P5Q2nsvNNyEhfBMArwNoPjnb9tUSSKq6I8X35HQ5D2tlJ7")
     # fs is a reference to the Hopsworks Feature Store
-    fs = project.get_feature_store()
-    dataset_api = project.get_dataset_api()
-    downloaded_file_path = dataset_api.download(overwrite=True, path="Resources/cantonese_pandas_frame_1.csv")  #download to local
+    # fs = project.get_feature_store()
+    # dataset_api = project.get_dataset_api()
+    # downloaded_file_path = dataset_api.download(overwrite=True, path="Resources/cantonese_pandas_frame_1.csv")  #download to local
 
-    from datasets import load_dataset
-    common_voice = load_dataset("csv",data_files="D:\Github\Deep Learning\IL2223_lab2\cantonese_pandas_frame_1.csv")  #[?]file path
+    from datasets import load_dataset, DatasetDict
+    ccommon_voice = DatasetDict()
+    common_voice = load_dataset("tilos/cantonese_processed")  # Load processed dataset from huggingface
 
-    cantonese_voice_train, cantonese_voice_test = common_voice, common_voice #[?] train and test
-    # You can read training data, randomly split into train/test sets of features (X) and labels (y)
-    #X_train, y_train, X_test, y_test = feature_view.get_train_test_split(training_dataset_version=1)
+    cantonese_voice = common_voice['train'].train_test_split(test_size=0.2, shuffle=True) #[?] train and test
 
     from transformers import WhisperProcessor
-    processor = WhisperProcessor.from_pretrained("openai/whisper-small", language="zh-HK", task="transcribe")
+    processor = WhisperProcessor.from_pretrained("openai/whisper-small", language="chinese", task="transcribe")
 
     import torch
     from dataclasses import dataclass

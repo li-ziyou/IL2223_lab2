@@ -17,18 +17,16 @@ def transcribe(audio):
     text = pipe(audio)["text"]
     return text
 
-def audio_preprocess(audio_file):
-    filename, ext = os.path.splitext(audio_file)
-    return f"{filename}.{ext}"
 
 def offline_audio(audio):
-    audio_file = audio_preprocess(audio)
-    text = transcribe(audio_file)
+    #filename, ext = os.path.splitext(audio)
+    #audio_file = f"{filename}.{ext}"
+    #text = transcribe(audio_file)
+    text = pipe(audio)["text"]
     return text
 
 
 def get_text(url):
-    if url != '': output_text_transcribe = ''
     result = pipe(get_audio(url))
     return result['text'].strip()
 
@@ -49,22 +47,36 @@ def offline_video(video):
 
 
 with gr.Blocks() as demo:
-    # audio file input
-    gr.Interface(
-            fn=offline_audio,
-            title="Whisper: zh-HK Subtitle Generator",
-            description="Generate zh-HK subtitle from audio file, your microphone and Youtube",
-            inputs = "audio",
-            outputs = "text",
-            allow_flagging= "never",
-    )
+
     # video file input
     gr.Interface(
+            title="Whisper: Real Time Cantonese Recognition",
+            description="Realtime demo for Cantonese speech recognition using a fine-tuned Whisper small model. "
+                        "Generate zh-HK subtitle from audio file, your microphone and Youtube",
             fn=offline_video,
             inputs="video",
             outputs="text",
             allow_flagging="never",
         )
+
+    # audio file input
+    with gr.Row():
+        with gr.Column():
+            input_audio = gr.Audio(source="upload", type="filepath")
+            micro_btn = gr.Button('Generate Voice Subtitles')
+        with gr.Column():
+            output_audio = gr.Textbox(placeholder='Transcript from audio', label='Subtitles')
+            micro_btn.click(transcribe, inputs=input_audio, outputs=output_audio)
+    """
+    gr.Interface(
+            fn=transcribe,
+            title="Whisper: zh-HK Subtitle Generator",
+            description="Generate zh-HK subtitle from audio file, your microphone and Youtube",
+            inputs = gr.Audio(source="upload", type="filepath", optional=True),
+            outputs = "text",
+            allow_flagging= "never",
+    )
+    """
 
     # microphone input
     with gr.Row():
@@ -87,4 +99,4 @@ with gr.Blocks() as demo:
 
 
 
-demo.launch()
+demo.launch(debug=True)

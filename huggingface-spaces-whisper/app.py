@@ -40,29 +40,47 @@ def video_identity(video):
 def test(a):
     return a
 
+title = "Add Text/Caption to your YouTube Shorts - MultiLingual"
+
 with gr.Blocks() as demo:
-    with gr.Row():
+    #with gr.Row(): # audio file input
+    gr.Interface(
+            fn=transcribe,
+            title="Whisper: zh-HK Subtitle Generator",
+            description="Generate zh-HK subtitle from audio file, your microphone and Youtube",
+            inputs = "audio",
+            outputs = "text",
+            allow_flagging= "never",
+    )
+
+    with gr.Row(): #microphone input
         with gr.Column():
             input_mircro = gr.Audio(source="microphone", type="filepath")
-            micro_btn = gr.Button('Transcribe voice')
+            micro_btn = gr.Button('Generate Voice Subtitles')
         with gr.Column():
-            output_micro = gr.Textbox(placeholder='Transcript from mic.', label='Transcript') #label?
+            output_micro = gr.Textbox(placeholder='Transcript from mic', label='Subtitles')
             micro_btn.click(transcribe, inputs=input_mircro, outputs=output_micro)
 
-    with gr.Row():
+
+    """
+    with gr.Row(): # Offline Video input
         with gr.Column():
-            inputs_url = gr.Textbox(placeholder='Video URL', label='URL')
-            url_btn = gr.Button('Transcribe Video')
+            inputs_url = gr.Textbox(placeholder='Youtube URL', label='URL')
+            url_btn = gr.Button('Generate Youtube Video Subtitles')
+            examples = gr.Examples(examples=["https://www.youtube.com/watch?v=Yw4EoGWe0vw"],inputs=[inputs_url])
         with gr.Column():
             output_url = gr.Textbox(placeholder='Transcript from video.', label='Transcript')
-            url_btn.click(get_text, inputs=inputs_url, outputs=output_url)
-            examples = [["www.google.com"]]
-    with gr.Row():
-        gr.Interface(
-            fn=test,
-            inputs="audio",
-            outputs = "audio",
-            examples=[]
-        )
+            url_btn.click(get_text, inputs=inputs_url, outputs=output_url )
+    """
+    with gr.Row(): #url input
+        with gr.Column():
+            inputs_url = gr.Textbox(placeholder='Youtube URL', label='URL')
+            url_btn = gr.Button('Generate Youtube Video Subtitles')
+            examples = gr.Examples(examples=["https://www.youtube.com/watch?v=Yw4EoGWe0vw"],inputs=[inputs_url])
+        with gr.Column():
+            output_url = gr.Textbox(placeholder='Transcript from video.', label='Transcript')
+            url_btn.click(get_text, inputs=inputs_url, outputs=output_url )
+
+
 
 demo.launch()

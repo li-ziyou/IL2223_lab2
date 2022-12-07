@@ -32,13 +32,11 @@ def get_audio(url):
     audio = new_file
     return audio
 
-def video_identity(video):
+def offline_video(video):
     audio_file = video2mp3(video)
-    text = pipe(audio_file)#["text"]
-    print(text)
+    text = transcribe(audio_file)
     return text
-def test(a):
-    return a
+
 
 title = "Add Text/Caption to your YouTube Shorts - MultiLingual"
 
@@ -53,6 +51,13 @@ with gr.Blocks() as demo:
             allow_flagging= "never",
     )
 
+    gr.Interface(
+            fn=offline_video,
+            inputs="video",
+            outputs="text",
+            allow_flagging="never",
+        )
+
     with gr.Row(): #microphone input
         with gr.Column():
             input_mircro = gr.Audio(source="microphone", type="filepath")
@@ -62,16 +67,9 @@ with gr.Blocks() as demo:
             micro_btn.click(transcribe, inputs=input_mircro, outputs=output_micro)
 
 
-    """
-    with gr.Row(): # Offline Video input
-        with gr.Column():
-            inputs_url = gr.Textbox(placeholder='Youtube URL', label='URL')
-            url_btn = gr.Button('Generate Youtube Video Subtitles')
-            examples = gr.Examples(examples=["https://www.youtube.com/watch?v=Yw4EoGWe0vw"],inputs=[inputs_url])
-        with gr.Column():
-            output_url = gr.Textbox(placeholder='Transcript from video.', label='Transcript')
-            url_btn.click(get_text, inputs=inputs_url, outputs=output_url )
-    """
+
+
+
     with gr.Row(): #url input
         with gr.Column():
             inputs_url = gr.Textbox(placeholder='Youtube URL', label='URL')

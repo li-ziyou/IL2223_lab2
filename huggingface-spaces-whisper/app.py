@@ -17,6 +17,16 @@ def transcribe(audio):
     text = pipe(audio)["text"]
     return text
 
+def audio_preprocess(audio_file):
+    filename, ext = os.path.splitext(audio_file)
+    return f"{filename}.{ext}"
+
+def offline_audio(audio):
+    audio_file = audio_preprocess(audio)
+    text = transcribe(audio_file)
+    return text
+
+
 def get_text(url):
     if url != '': output_text_transcribe = ''
     result = pipe(get_audio(url))
@@ -38,19 +48,17 @@ def offline_video(video):
     return text
 
 
-title = "Add Text/Caption to your YouTube Shorts - MultiLingual"
-
 with gr.Blocks() as demo:
-    #with gr.Row(): # audio file input
+    # audio file input
     gr.Interface(
-            fn=transcribe,
+            fn=offline_audio,
             title="Whisper: zh-HK Subtitle Generator",
             description="Generate zh-HK subtitle from audio file, your microphone and Youtube",
             inputs = "audio",
             outputs = "text",
             allow_flagging= "never",
     )
-
+    # video file input
     gr.Interface(
             fn=offline_video,
             inputs="video",
@@ -58,7 +66,8 @@ with gr.Blocks() as demo:
             allow_flagging="never",
         )
 
-    with gr.Row(): #microphone input
+    # microphone input
+    with gr.Row():
         with gr.Column():
             input_mircro = gr.Audio(source="microphone", type="filepath")
             micro_btn = gr.Button('Generate Voice Subtitles')
@@ -66,11 +75,8 @@ with gr.Blocks() as demo:
             output_micro = gr.Textbox(placeholder='Transcript from mic', label='Subtitles')
             micro_btn.click(transcribe, inputs=input_mircro, outputs=output_micro)
 
-
-
-
-
-    with gr.Row(): #url input
+    # Youtube url input
+    with gr.Row():
         with gr.Column():
             inputs_url = gr.Textbox(placeholder='Youtube URL', label='URL')
             url_btn = gr.Button('Generate Youtube Video Subtitles')

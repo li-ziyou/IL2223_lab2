@@ -3,8 +3,7 @@
 Lab assignment 2 of ID2223 Scalable Machine Learning and Deep Learning course at KTH Royal Institute of Technology.
 
 1. Based on an existing pre-trained transformer model
-[Whisper](https://colab.research.google.com/github/sanchit-gandhi/notebooks/blob/main/fine_tune_whisper.ipynb) 
-,a zh-HK dataset in [common_voice](https://huggingface.co/datasets/mozilla-foundation/common_voice_11_0/viewer/sv-SE/train)
+[Whisper](https://colab.research.google.com/github/sanchit-gandhi/notebooks/blob/main/fine_tune_whisper.ipynb), a zh-HK dataset in [common_voice](https://huggingface.co/datasets/mozilla-foundation/common_voice_11_0/viewer/sv-SE/train)
 was used to train a Cantonese Whisper.
 
 2. Use data-centric approach to fine-tune the Cantonese Whisper model. New data sources comes from [xxx](), which is being preprocessed and

@@ -10,7 +10,7 @@ was used to train a Cantonese Whisper.
 stored in [Cantonese_processed_guangzhou](https://huggingface.co/datasets/tilos/cantonese_processed_guangzhou).
 This data-centric approach reduce the Word Error Rate (WER) from xxx to xxx.
 
-3. Refactor the program into a feature engineering pipeline, training pipeline, and an inference to improve efficiency and scalabiliy.
+3. Refactor the program into a feature engineering pipeline, training pipeline, and an inference pipeline to improve efficiency and scalabiliy.
 
 Here is the UI, which you can generate zh-HK subtitle from audio file, video file, Youtube URL, and your microphone.
 - [Whisper app on huggingface](https://huggingface.co/spaces/Chenzhou/Whisper-zh-HK)

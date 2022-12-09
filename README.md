@@ -10,7 +10,7 @@ A basic Gradio UI on huggingface space with an inference pipeline to this model 
 This Word Error Rate (WER) after 4000 steps of training was 61.22.
 
 ## Use data-centric approach to fine-tune the Cantonese Whisper model. 
-New data sources comes from [Magic Data](https://magichub.com/datasets/guangzhou-cantonese-scripted-speech-corpus-daily-use-sentence/), which is segmented and uploaded to [huggingface dataset](https://huggingface.co/datasets/tilos/cantonese_daily) under [CC BY-NC-ND 4.0 license](https://creativecommons.org/licenses/by-nc-nd/4.0/), preprocessed by a refactorized feature pipeline [Feature Pipeline Guangzhou.py](https://github.com/Tilosmsh/IL2223_lab2/blob/main/whisper-feature-pipeline_guangzhou.py) on [Modal](modal.com) (Because running feature extraction with CPU on Modal is super fast and cheap ;-), barely used our $30 credit) and
+New data sources comes from [Magic Data](https://magichub.com/datasets/guangzhou-cantonese-scripted-speech-corpus-daily-use-sentence/), which is segmented and uploaded to [huggingface dataset](https://huggingface.co/datasets/tilos/cantonese_daily) under [CC BY-NC-ND 4.0 license](https://creativecommons.org/licenses/by-nc-nd/4.0/), preprocessed by a refactorized feature pipeline [Feature Pipeline Guangzhou.py](https://github.com/Tilosmsh/IL2223_lab2/blob/main/whisper-feature-pipeline_guangzhou.py) on [Modal](https://modal.com) (Because running feature extraction with CPU on Modal is super fast and cheap ;-), barely used our $30 credit) and
 stored again as huggingface dataset [Cantonese_processed_guangzhou](https://huggingface.co/datasets/tilos/cantonese_processed_guangzhou).
 
 We encountered some problems searching for datasets for Cantonese Chinese, the second most used dialect of Chinese. [The first being Mandarin Chinese, often being referred to as, Chinese] It turned out that there is only a limited number of data sources. The writing system of Cantonese Chinese is rather fragmented, with HK & Macau using traditional characters and wording formalities and China Mainland & Malaysia using simplified characters and their own wording formalities, resulting in an inconsistency in the transcripts. In order to be consistent with the dataset used in the first task, the problem is solved by brutally forcing all characters to be preprocessed as traditional characters in the feature pipeline. Also, there is virtually no other Cantonese dataset on Hugging face, and the dataset from magic data would be the only comprehensive and formal enough Cantonese voice transcripted dataset capable of better training our model. 
@@ -40,8 +40,8 @@ Here is the UI, which you can generate zh-HK subtitle from audio file, video fil
 
  - [Github Page](https://github.com/Tilosmsh/IL2223_lab2)
  - [ID2223 @ KTH](https://id2223kth.github.io/)    
- - [Modal](modal.com)
- - [Hugging Face](huggingface.co)
- - [Google Colab](colab.research.google.com)
+ - [Modal](https://modal.com)
+ - [Hugging Face](https://huggingface.com)
+ - [Google Colab](https://colab.research.google.com)
  
 

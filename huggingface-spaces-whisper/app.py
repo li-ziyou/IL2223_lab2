@@ -18,14 +18,6 @@ def transcribe(audio):
     return text
 
 
-def offline_audio(audio):
-    #filename, ext = os.path.splitext(audio)
-    #audio_file = f"{filename}.{ext}"
-    #text = transcribe(audio_file)
-    text = pipe(audio)["text"]
-    return text
-
-
 def get_text(url):
     result = pipe(get_audio(url))
     return result['text'].strip()
@@ -99,4 +91,4 @@ with gr.Blocks() as demo:
 
 
 
-demo.launch(debug=True)
+demo.launch()

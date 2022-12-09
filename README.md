@@ -19,7 +19,7 @@ Another problem we faced is data storage. We wanted to store the extracted featu
 
 For the second training, the parameters used can be found in [Training Pipeline Guangzhou](https://github.com/Tilosmsh/IL2223_lab2/blob/main/Training_pipeline_guangzhou.ipynb), essentially unchanged apart from a lower learning rate. The training is performed on Google Colab (We did not use Modal here because Modal GPU time is expensive :<).
 
-This data-centric approach reduced the Word Error Rate (WER) to 60.46 using 1600 additional steps.
+This data-centric approach reduced the Word Error Rate (WER) to 60.46 using 1600 additional steps. (The first time failed to upload its metrics to tensorboard for tracking. The second time reduced WER to 60.96.)
 
 ## Refactor the program into a feature engineering pipeline, training pipeline, and an inference program (Hugging Face Space), to improve efficiency and scalabiliy.
 

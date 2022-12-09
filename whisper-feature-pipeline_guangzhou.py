@@ -6,7 +6,7 @@ LOCAL=False
 if LOCAL == False:
 
    stub = modal.Stub()
-   image = modal.Image.debian_slim().pip_install(["hopsworks==3.0.4","datasets", "huggingface_hub", "joblib","seaborn","scikit-learn==0.24.2","dataframe-image","librosa","transformers", "torchaudio<0.12"]).apt_install(["libsndfile1"])
+   image = modal.Image.debian_slim().pip_install(["hopsworks==3.0.4","datasets", "huggingface_hub", "joblib","seaborn","scikit-learn==0.24.2","dataframe-image","librosa","transformers", "torchaudio<0.12", "chinese-converter"]).apt_install(["libsndfile1"])
    @stub.function(image=image, schedule=modal.Period(days=1), secret=modal.Secret.from_name("ScalableML_lab1"), timeout=5000)
    def f():
        g()
@@ -17,6 +17,7 @@ def g():
     from datasets import load_dataset, Audio
     from huggingface_hub import login, notebook_login
     from transformers import WhisperFeatureExtractor, WhisperTokenizer, WhisperProcessor
+    import chinese_converter
 
     # Predefine dataset preparation function
     def prepare_dataset(batch):
@@ -27,7 +28,7 @@ def g():
         batch["input_features"] = feature_extractor(audio["array"], sampling_rate=audio["sampling_rate"], return_tensors='pt').input_features[0]
 
         # encode target text to label ids 
-        batch["labels"] = tokenizer(batch["sentence"]).input_ids
+        batch["labels"] = tokenizer(chinese_converter.to_traditional(batch["sentence"])).input_ids
         return batch
 
     # Login to huggingface
@@ -35,8 +36,13 @@ def g():
     notebook_login()
 
     # Create and load dataset (mozilla)
-    cantonese  = load_dataset("mozilla-foundation/common_voice_11_0", "zh-HK", split="train+validation+test", use_auth_token=True)
-    cantonese = cantonese.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "path", "segment", "up_votes"])
+    # cantonese  = load_dataset("mozilla-foundation/common_voice_11_0", "zh-HK", split="train+validation+test", use_auth_token=True)
+    # cantonese = cantonese.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "path", "segment", "up_votes"])
+
+    
+    # load dataset (guangzhou_cantonese)
+    cantonese  = load_dataset("tilos/cantonese_daily", use_auth_token=True)
+
 
     # Load feature extractor
 
@@ -98,7 +104,7 @@ def g():
     # cantonese_pandas.to_csv('cantonese_pandas.csv')
     # uploaded_file_path = dataset_api.upload('cantonese_pandas.csv', "Resources")
     
-    cantonese_dropped.push_to_hub("tilos/cantonese_processed")
+    cantonese_dropped.push_to_hub("tilos/cantonese_processed_daily")
     
 if __name__ == "__main__":
     if LOCAL == True :

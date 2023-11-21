@@ -31,7 +31,7 @@ def g():
         return batch
 
     # Login to huggingface
-    login(token="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")
+    login(token="hf_*")
     notebook_login()
 
     # Create and load dataset (mozilla)

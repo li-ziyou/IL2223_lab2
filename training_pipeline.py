@@ -39,7 +39,7 @@ login(token="hf_*")
 notebook_login()
 
 # You have to set the environment variable 'HOPSWORKS_API_KEY' for login to succeed
-project = hopsworks.login(api_key_value="CDqcnm3gyfxjyCO8.TZwOClLOwCqDp33vX0P5Q2nsvNNyEhfBMArwNoPjnb9tUSSKq6I8X35HQ5D2tlJ7")
+project = hopsworks.login(api_key_value="*")
 # Get data from hopswork
 #dataset_api = project.get_dataset_api()
 #path = dataset_api.download(overwrite=True, path="tilos/cantonese_processed")  #download to local. Return a path

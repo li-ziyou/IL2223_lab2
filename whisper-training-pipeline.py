@@ -33,7 +33,7 @@ def g():
 
 
     # You have to set the environment variable 'HOPSWORKS_API_KEY' for login to succeed
-    project = hopsworks.login(api_key_value="CDqcnm3gyfxjyCO8.TZwOClLOwCqDp33vX0P5Q2nsvNNyEhfBMArwNoPjnb9tUSSKq6I8X35HQ5D2tlJ7")
+    project = hopsworks.login(api_key_value="*")
     # fs is a reference to the Hopsworks Feature Store
     # fs = project.get_feature_store()
     # dataset_api = project.get_dataset_api()

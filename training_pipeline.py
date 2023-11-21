@@ -35,7 +35,7 @@ import hopsworks
 from transformers import WhisperTokenizer
 from huggingface_hub import login, notebook_login
 
-login(token="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")
+login(token="hf_*")
 notebook_login()
 
 # You have to set the environment variable 'HOPSWORKS_API_KEY' for login to succeed

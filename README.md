@@ -7,7 +7,6 @@ We used [Whisper](https://openai.com/blog/whisper/) from OpenAI as the pre-train
 
 A basic Gradio UI on huggingface space with an inference pipeline to this model can be found [here](https://huggingface.co/spaces/tilos/id2223_lab2)
 
-This Word Error Rate (WER) after 4000 steps of training was 61.22.
 
 ## Use data-centric approach to fine-tune the Cantonese Whisper model. 
 New data sources comes from [Magic Data](https://magichub.com/datasets/guangzhou-cantonese-scripted-speech-corpus-daily-use-sentence/), which is segmented and uploaded to [huggingface dataset](https://huggingface.co/datasets/tilos/cantonese_daily) under [CC BY-NC-ND 4.0 license](https://creativecommons.org/licenses/by-nc-nd/4.0/), preprocessed by a refactorized feature pipeline [Feature Pipeline Guangzhou.py](https://github.com/Tilosmsh/IL2223_lab2/blob/main/whisper-feature-pipeline_guangzhou.py) on [Modal](https://modal.com) (Because running feature extraction with CPU on Modal is super fast and cheap ;-), barely used our $30 credit) and
